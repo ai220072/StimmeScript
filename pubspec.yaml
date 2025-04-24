@@ -48,6 +48,10 @@ dependencies:
   shared_preferences: ^2.3.5
   encrypt: ^5.0.0
   flutter_secure_storage: ^7.0.0
+  mic_stream: ^0.6.5
+  web_socket_channel: ^2.3.0
+  flutter_sound: ^9.2.13
+  permission_handler: ^10.2.0
 
 dev_dependencies:
   flutter_test:
