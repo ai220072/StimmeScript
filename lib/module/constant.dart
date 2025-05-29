@@ -1,0 +1,2 @@
+const String apiSecretKey =
+    "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";

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "910341489678",
+    "firebase_url": "https://fir-flutter-codelens-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "fir-flutter-codelens",
+    "storage_bucket": "fir-flutter-codelens.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:910341489678:android:3cb207692d34d484c1285f",
+        "android_client_info": {
+          "package_name": "com.example.codelens_v2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDi39Ye9DtoKzqkpYV1CmFjtE8ZpMCy0HE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
