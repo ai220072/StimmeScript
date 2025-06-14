@@ -1,6 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+// Custom determinate linear progress widget
+class DeterminateLinearIndicator extends StatelessWidget {
+  final String label;
+  final double progress;
+
+  const DeterminateLinearIndicator({
+    super.key,
+    required this.label,
+    required this.progress,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 10),
+        TweenAnimationBuilder<double>(
+          tween: Tween<double>(begin: 0.0, end: progress),
+          duration: const Duration(milliseconds: 500),
+          builder: (context, value, _) {
+            return LinearProgressIndicator(
+              value: value,
+              backgroundColor: Colors.grey[300],
+              color: Colors.red[700],
+              minHeight: 8,
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -15,6 +54,7 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+  double _progress = 0.0;
 
   void _login() async {
     final String email = _emailController.text.trim();
@@ -32,19 +72,28 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() {
       _isLoading = true;
+      _progress = 0.1;
     });
 
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      await Future.delayed(const Duration(milliseconds: 400));
+      setState(() => _progress = 0.4);
+
+      await Future.delayed(const Duration(milliseconds: 400));
+      setState(() => _progress = 0.7);
+
+      UserCredential userCredential = await 
+      _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
+      setState(() => _progress = 1.0);
+      await Future.delayed(const Duration(milliseconds: 300));
+
       User? user = userCredential.user;
-      if (user != null) {
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/dashboard');
-        }
+      if (user != null && mounted) {
+        Navigator.pushReplacementNamed(context, '/dashboard');
       }
     } catch (e) {
       if (mounted) {
@@ -56,31 +105,53 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _progress = 0.0;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     appBar: AppBar(
+      appBar: AppBar(
         title: const Text('Login'),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFFF0000), Color(0xFFB22222)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+            gradient: LinearGradient(
+              colors: [Color(0xFFFF0000), Color(0xFFB22222)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
         ),
         centerTitle: true,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Container(
+            ? Center(
+              child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    'assets/animations/Pen.gif',
+                    fit: BoxFit.fitHeight,
+                    width: 100,
+                    height: 100,
+                  ),
+                  const SizedBox(height: 16),
+                  DeterminateLinearIndicator(
+                    label: 'Logging in...',
+                    progress: _progress,
+                  ),
+                ],
+              ),
+              ))
+            : Container(
               color: Colors.white,
               padding: const EdgeInsets.all(16.0),
               width: double.infinity,
@@ -90,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     Image.asset(
                       'assets/logo.png',
-                      height: 400,
+                      height: 200,
                     ),
                     const SizedBox(height: 16),
                     TextField(
@@ -143,8 +214,10 @@ class _LoginPageState extends State<LoginPage> {
                         textStyle: const TextStyle(color: Colors.black),
                       ),
                       onPressed: _login,
-                      child: Text('Login',
-                          style: Theme.of(context).textTheme.bodyMedium),
+                      child: Text(
+                        'Login',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ),
                     TextButton(
                       onPressed: () =>

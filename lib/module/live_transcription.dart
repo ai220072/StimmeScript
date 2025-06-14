@@ -1,128 +1,59 @@
-/*import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'constant.dart';
+import 'package:path_provider/path_provider.dart';
+import 'recorder/recorder_page.dart';
+import 'recorder/recording_list_page.dart';
 
-class LiveTranscriptionPage extends StatefulWidget {
-  const LiveTranscriptionPage({super.key});
+class VoiceModule extends StatefulWidget {
+  const VoiceModule({super.key});
 
   @override
-  State<LiveTranscriptionPage> createState() => _LiveTranscriptionPageState();
+  State<VoiceModule> createState() => _VoiceModuleState();
 }
 
-class _LiveTranscriptionPageState extends State<LiveTranscriptionPage> {
-  final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
-  WebSocketChannel? _channel;
-  String _transcription = '';
-  bool _isRecording = false;
+class _VoiceModuleState extends State<VoiceModule> {
+  int _selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _initRecorder();
-  }
-
-  Future<void> _initRecorder() async {
-    await Permission.microphone.request();
-    await _recorder.openRecorder();
-    _recorder.setSubscriptionDuration(const Duration(milliseconds: 200));
-  }
-
-  void _startStreaming() async {
-    _channel = WebSocketChannel.connect(
-      Uri.parse('wss://api.openai.com/v1/realtime?intent=transcription'),
-    );
-
-    _channel!.sink.add(jsonEncode({
-      "type": "transcription_session.update",
-      "input_audio_format": "pcm16",
-      "input_audio_transcription": {
-        "model": "gpt-4o-transcribe",
-        "prompt": "",
-        "language": "en"
-      },
-      "turn_detection": {
-        "type": "server_vad",
-        "threshold": 0.5,
-        "prefix_padding_ms": 300,
-        "silence_duration_ms": 500
-      },
-      "input_audio_noise_reduction": {"type": "near_field"},
-      "include": ["item.input_audio_transcription.logprobs"]
-    }));
-
-    _channel!.stream.listen((event) {
-      final data = json.decode(event);
-      if (data['type'] == 'transcription') {
-        setState(() {
-          _transcription = data['text'] ?? _transcription;
-        });
-      }
-    });
-
-    await _recorder.startRecorder(
-      codec: Codec.pcm16,
-      sampleRate: 16000,
-      numChannels: 1,
-      audioStream: (buffer) {
-        final base64Audio = base64Encode(buffer);
-        _channel!.sink.add(jsonEncode({
-          "type": "input_audio_buffer.append",
-          "audio": base64Audio,
-        }));
-      },
-    );
-
-    setState(() => _isRecording = true);
-  }
-
-  Future<void> _stopStreaming() async {
-    await _recorder.stopRecorder();
-    _channel?.sink.close();
-    setState(() => _isRecording = false);
-  }
-
-  @override
-  void dispose() {
-    _recorder.closeRecorder();
-    _channel?.sink.close();
-    super.dispose();
-  }
+  final List<Widget> _pages = [
+    RecorderPage(),
+    RecordingsListPage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Live Transcription'),
-        centerTitle: true,
-        backgroundColor: Colors.redAccent,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Icon(Icons.mic, size: 80, color: Colors.redAccent),
-            const SizedBox(height: 20),
-            Text(
-              _transcription,
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 40),
-            ElevatedButton.icon(
-              icon: Icon(_isRecording ? Icons.stop : Icons.mic),
-              label: Text(_isRecording ? 'Stop' : 'Start'),
-              onPressed: _isRecording ? _stopStreaming : _startStreaming,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-                foregroundColor: Colors.white,
-              ),
-            ),
-          ],
+      title: const Text('Live Transcription'),
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFFF0000), Color(0xFFB22222)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
         ),
       ),
+    ),
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+      currentIndex: _selectedIndex,
+      onTap: (index) => setState(() => _selectedIndex = index),
+      selectedItemColor: Colors.red,             // Active icon/text color
+      unselectedItemColor: Colors.grey.shade600, // Inactive icon/text color
+      backgroundColor: Colors.white,             // Optional: bar background
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.mic),
+          label: 'Record',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.library_music),
+          label: 'Recordings',
+        ),
+      ],
+    ),
+
     );
   }
-}*/
+}

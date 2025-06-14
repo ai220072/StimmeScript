@@ -1,6 +1,10 @@
 buildscript {
+    ext.kotlin_version = '1.9.22' // Update to the latest stable version
     dependencies {
-        classpath 'com.google.gms:google-services:4.3.10' // Check for the latest version
+        classpath 'com.google.gms:google-services:4.3.10'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.android.tools.build:gradle:8.1.2' // Update to the latest stable version
+         // Check for the latest version
     }
 }
 plugins {
@@ -36,7 +40,7 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdkVersion 24
         //minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = flutter.targetSdkVersion    
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
