@@ -1,7 +1,6 @@
 # StimmeScript_v2
 
 An Audio-To-Text Converter Tool.
-![Screenshot 2025-04-24 134409](https://github.com/user-attachments/assets/a16e9707-0e7c-4395-990d-f655eda45f13)
 
 
 Developed by AI220072 NUR AFIQAH BINTI NAIROLLIZAM.
