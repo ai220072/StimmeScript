@@ -52,7 +52,6 @@ class ManageProfileState extends State<ManageProfile> {
   bool _isLoading = true;
   double _progress = 0.0;
   String errorMessage = '';
-  final ValueNotifier<double> progressNotifier = ValueNotifier(0.0);
 
   @override
   void initState() {
@@ -66,12 +65,12 @@ class ManageProfileState extends State<ManageProfile> {
     setState(() {
       _isLoading = true;
       _progress = 0.0;
-      progressNotifier.value = 0.0;
     });
 
     try {
       await Future.delayed(const Duration(milliseconds: 300));
-      progressNotifier.value = 0.3;
+      _progress = 0.3;
+      setState(() {});
 
       User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
@@ -83,7 +82,8 @@ class ManageProfileState extends State<ManageProfile> {
       }
 
       await Future.delayed(const Duration(milliseconds: 300));
-      progressNotifier.value = 0.6;
+      _progress = 0.6;
+      setState(() {});
 
       final snapshot = await FirebaseFirestore.instance
           .collection('users')
@@ -91,7 +91,8 @@ class ManageProfileState extends State<ManageProfile> {
           .get();
 
       await Future.delayed(const Duration(milliseconds: 300));
-      progressNotifier.value = 1.0;
+      _progress = 1.0;
+      setState(() {});
 
       if (snapshot.exists) {
         setState(() {
@@ -133,6 +134,23 @@ class ManageProfileState extends State<ManageProfile> {
     );
   }
 
+  void showResetDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text("OK", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -153,24 +171,25 @@ class ManageProfileState extends State<ManageProfile> {
       body: _isLoading
           ? Center(
               child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset(
-                    'assets/animations/Pen.gif',
-                    fit: BoxFit.fitHeight,
-                    width: 100,
-                    height: 100,
-                  ),
-                  const SizedBox(height: 16),
-                  DeterminateLinearIndicator(
-                    label: 'Fetching user...',
-                    progress: _progress,
-                  ),
-                ],
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      'assets/animations/Pen.gif',
+                      fit: BoxFit.fitHeight,
+                      width: 100,
+                      height: 100,
+                    ),
+                    const SizedBox(height: 16),
+                    DeterminateLinearIndicator(
+                      label: 'Fetching user...',
+                      progress: _progress,
+                    ),
+                  ],
+                ),
               ),
-            ))
+            )
           : errorMessage.isNotEmpty
               ? Center(
                   child: Text(
@@ -236,7 +255,6 @@ class ManageProfileState extends State<ManageProfile> {
                       child: Column(
                         children: [
                           buildProfileRow(Icons.email, userData?['email'] ?? 'Email'),
-                          buildProfileRow(Icons.lock, 'Password'),
                           buildProfileRow(
                             Icons.info_outline,
                             'About Device',
@@ -251,16 +269,15 @@ class ManageProfileState extends State<ManageProfile> {
                                   await FirebaseAuth.instance
                                       .sendPasswordResetEmail(email: user.email!);
                                   if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Password reset email sent.')),
+                                    showResetDialog(
+                                      "Success",
+                                      "Password reset email sent to ${user.email}.",
                                     );
                                   }
                                 }
                               } catch (e) {
                                 if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Error: $e')),
-                                  );
+                                  showResetDialog("Error", e.toString());
                                 }
                               }
                             },

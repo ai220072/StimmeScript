@@ -13,10 +13,8 @@ class EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
 
   bool isLoading = true;
-  bool _isPasswordVisible = false;
   String errorMessage = '';
 
   @override
@@ -56,10 +54,6 @@ class EditProfilePageState extends State<EditProfilePage> {
         await user.verifyBeforeUpdateEmail(emailController.text);
       }
 
-      if (passwordController.text.isNotEmpty) {
-        await user.updatePassword(passwordController.text);
-      }
-
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
@@ -72,57 +66,43 @@ class EditProfilePageState extends State<EditProfilePage> {
         await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-        title: const Text('Success'),
-        content: const Text('Profile updated successfully'),
-        actions: [
-          TextButton(
-            onPressed: () {
-          Navigator.of(context).pop(); // Close dialog
-          Navigator.of(context).pop(); // Pop EditProfilePage
-            },
-            child: const Text('OK'),
-          ),
-        ],
+            title: const Text('Success'),
+            content: const Text('Profile updated successfully'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close dialog
+                  Navigator.pushReplacementNamed(context, '/manage_profile'); // Navigate back
+                },
+                child: const Text('OK'),
+              ),
+            ],
           ),
         );
       }
-        } catch (e) {
+    } catch (e) {
       if (mounted) {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-        title: const Text('Error'),
-        content: Text('Error updating profile: $e'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
+            title: const Text('Error'),
+            content: Text('Error updating profile: $e'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
           ),
         );
       }
     }
   }
 
-  InputDecoration buildInputDecoration(String label, IconData icon,
-      {bool isPassword = false}) {
+  InputDecoration buildInputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
       prefixIcon: Icon(icon, color: Colors.redAccent),
-      suffixIcon: isPassword
-          ? IconButton(
-              icon: Icon(
-                _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                color: Colors.grey,
-              ),
-              onPressed: () {
-                setState(() {
-                  _isPasswordVisible = !_isPasswordVisible;
-                });
-              },
-            )
-          : null,
       filled: true,
       fillColor: Colors.white,
       contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
@@ -181,16 +161,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) =>
                           value!.isEmpty ? 'Enter an email' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: passwordController,
-                      decoration: buildInputDecoration(
-                        'New Password',
-                        Icons.lock,
-                        isPassword: true,
-                      ),
-                      obscureText: !_isPasswordVisible,
                     ),
                     const SizedBox(height: 32),
                     SizedBox(
