@@ -60,21 +60,46 @@ class EditProfilePageState extends State<EditProfilePage> {
         await user.updatePassword(passwordController.text);
       }
 
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({
         'name': nameController.text,
         'email': emailController.text,
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully')),
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+        title: const Text('Success'),
+        content: const Text('Profile updated successfully'),
+        actions: [
+          TextButton(
+            onPressed: () {
+          Navigator.of(context).pop(); // Close dialog
+          Navigator.of(context).pop(); // Pop EditProfilePage
+            },
+            child: const Text('OK'),
+          ),
+        ],
+          ),
         );
-        Navigator.pop(context);
       }
-    } catch (e) {
+        } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating profile: $e')),
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text('Error updating profile: $e'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+          ),
         );
       }
     }
@@ -112,7 +137,7 @@ class EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // ← No grey overlay
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Edit Profile'),
         centerTitle: true,

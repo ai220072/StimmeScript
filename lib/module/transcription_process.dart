@@ -15,32 +15,32 @@ Future<void> processAndSaveTranscription({
   required void Function(String message) onProgress,
   required void Function(String result) onComplete,
   required void Function(String error) onError,
-  required void Function(double progress) onProgressUpdate, // NEW
+  required void Function(double progress) onProgressUpdate,
 }) async {
   try {
     onProgress("Uploading file...");
     onProgressUpdate(0.2);
-
-    // simulate upload delay
     await Future.delayed(Duration(seconds: 1));
 
-    onProgress("Processing file...");
-    onProgressUpdate(0.5);
+    onProgress("Transcribing...");
+    onProgressUpdate(0.4);
+    final rawText = await _convertSpeechToTextWithRetry(filePath);
 
-    await Future.delayed(Duration(seconds: 1));
+    onProgress("Fixing grammar...");
+    onProgressUpdate(0.7);
+    final correctedText = await correctGrammar(rawText);
 
-    onProgress("Finalizing...");
-    onProgressUpdate(0.8);
+    // Save to Firebase
+    await saveTranscriptionToFirebase(context, correctedText);
 
-    await Future.delayed(Duration(seconds: 1));
-
-    onComplete("Transcription complete!");
+    onComplete(correctedText);
     onProgressUpdate(1.0);
   } catch (e) {
     onError("An error occurred: $e");
     onProgressUpdate(0.0);
   }
 }
+
 
 
 
@@ -75,7 +75,7 @@ Future<String> _convertSpeechToTextWithRetry(String filePath) async {
   }
 }
 
-Future<void> _saveTranscriptionToFirebase(BuildContext context, String correctedText) async {
+Future<void> saveTranscriptionToFirebase(BuildContext context, String correctedText) async {
   try {
     final encryptedText = AESUtil.encryptText(correctedText, fixedKey);
     User? user = FirebaseAuth.instance.currentUser;
@@ -90,9 +90,7 @@ Future<void> _saveTranscriptionToFirebase(BuildContext context, String corrected
       'timestamp': FieldValue.serverTimestamp(),
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Encrypted transcription saved to Firestore')),
-    );
+    
   } catch (e) {
     throw Exception('Firestore error: $e');
   }

@@ -164,68 +164,89 @@ class _AudioTranscriptionPageState extends State<AudioTranscriptionPage> {
           ),
         ),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            elevation: 6,
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 20),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFF0000), Color(0xFFB22222)],
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: ElevatedButton.icon(
-                      onPressed: pickFileAndProcess,
-                      icon: const Icon(Icons.upload_file),
-                      label: const Text('Pick Audio File'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        foregroundColor: Colors.white,
-                        shadowColor: Colors.transparent,
-                        elevation: 0,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  if (isTranscribing)
-                    Column(
-                      children: [
-                        Image.asset(
-                          'assets/animations/Pen.gif',
-                          width: 100,
-                          height: 100,
-                        ),
-                        const SizedBox(height: 16),
-                        DeterminateLinearIndicator(
-                          label: progressLabel,
-                          progress: progressValue,
-                        ),
-                      ],
-                    )
-                  else
-                    Text(
-                      text,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                      ),
-                    ),
-                ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              color: Colors.yellow[100],
+              child: const Text(
+                "💡 Transcription may take long if you have bigger file.",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
               ),
             ),
-          ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: Center(
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 6,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 20),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFFF0000), Color(0xFFB22222)],
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: ElevatedButton.icon(
+                            onPressed: pickFileAndProcess,
+                            icon: const Icon(Icons.upload_file),
+                            label: const Text('Pick Audio File'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: Colors.white,
+                              shadowColor: Colors.transparent,
+                              elevation: 0,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        if (isTranscribing)
+                          Column(
+                            children: [
+                              Image.asset(
+                                'assets/animations/Pen.gif',
+                                width: 100,
+                                height: 100,
+                              ),
+                              const SizedBox(height: 16),
+                              DeterminateLinearIndicator(
+                                label: progressLabel,
+                                progress: progressValue,
+                              ),
+                            ],
+                          )
+                        else
+                          Text(
+                            text,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

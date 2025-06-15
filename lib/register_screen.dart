@@ -13,7 +13,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
 
   Future<void> addUser(String userId, String name, String email) async {
@@ -34,20 +33,14 @@ class _RegisterPageState extends State<RegisterPage> {
     final String name = _nameController.text.trim();
     final String email = _emailController.text.trim();
     final String password = _passwordController.text.trim();
-    final String confirmPassword = _confirmPasswordController.text.trim();
 
-    if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
       _showDialog("Error", "All fields are required!");
       return;
     }
 
     if (password.length < 11) {
       _showDialog("Error", "Password must be at least 11 characters!");
-      return;
-    }
-
-    if (password != confirmPassword) {
-      _showDialog("Error", "Passwords do not match!");
       return;
     }
 
@@ -66,7 +59,8 @@ class _RegisterPageState extends State<RegisterPage> {
       await addUser(userId, name, email);
 
       if (mounted) {
-        _showDialog("Success", "Registration successful. Please verify your email.");
+        _showDialog(
+            "Success", "Registration successful. Please verify your email.");
       }
     } catch (error) {
       final errorMessage = (error as FirebaseAuthException).message ??
@@ -117,9 +111,8 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 10),
               _buildTextField(_emailController, 'Email'),
               const SizedBox(height: 10),
-              _buildTextField(_passwordController, 'Password', obscureText: true),
-              const SizedBox(height: 10),
-              _buildTextField(_confirmPasswordController, 'Re-enter Password', obscureText: true),
+              _buildTextField(_passwordController, 'Password',
+                  obscureText: true),
               const SizedBox(height: 10),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(

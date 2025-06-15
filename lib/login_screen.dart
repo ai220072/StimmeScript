@@ -39,7 +39,6 @@ class DeterminateLinearIndicator extends StatelessWidget {
   }
 }
 
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -82,18 +81,21 @@ class _LoginPageState extends State<LoginPage> {
       await Future.delayed(const Duration(milliseconds: 400));
       setState(() => _progress = 0.7);
 
-      UserCredential userCredential = await 
-      _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
 
       setState(() => _progress = 1.0);
       await Future.delayed(const Duration(milliseconds: 300));
 
       User? user = userCredential.user;
+
       if (user != null && mounted) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        await user.reload(); // reload user to get latest info
+        if (user.emailVerified) {
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        } else {
+          _showEmailVerificationDialog(user);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -114,6 +116,46 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void _showEmailVerificationDialog(User user) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Oh no!'),
+        content: const Text(
+            'Your email address is not verified. Please check your inbox or send a new verification email.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+                await user.sendEmailVerification();
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Verification email sent.'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } catch (e) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error: $e'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            child: const Text('Send Email'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,27 +173,28 @@ class _LoginPageState extends State<LoginPage> {
         centerTitle: true,
       ),
       body: _isLoading
-            ? Center(
+          ? Center(
               child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset(
-                    'assets/animations/Pen.gif',
-                    fit: BoxFit.fitHeight,
-                    width: 100,
-                    height: 100,
-                  ),
-                  const SizedBox(height: 16),
-                  DeterminateLinearIndicator(
-                    label: 'Logging in...',
-                    progress: _progress,
-                  ),
-                ],
+                padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      'assets/animations/Pen.gif',
+                      fit: BoxFit.fitHeight,
+                      width: 100,
+                      height: 100,
+                    ),
+                    const SizedBox(height: 16),
+                    DeterminateLinearIndicator(
+                      label: 'Logging in...',
+                      progress: _progress,
+                    ),
+                  ],
+                ),
               ),
-              ))
-            : Container(
+            )
+          : Container(
               color: Colors.white,
               padding: const EdgeInsets.all(16.0),
               width: double.infinity,
