@@ -1,4 +1,4 @@
-# codelens_v2
+# StimmeScript_v2
 
 A new Flutter project.
 
