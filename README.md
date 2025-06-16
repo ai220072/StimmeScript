@@ -34,5 +34,7 @@ Please register your account and verify your email. You may check the verificati
 Step 3:
 You will be redirected to the dashboard. You will see 4 modules. Choose the action you want to take.
 
+NOTE:Please use your own APIKEY FROM OPENAI
+
 Reminder:
 TRANSCRIPTION MAY TAKE A WHILE IF YOU HAVE A LARGE FILE.
