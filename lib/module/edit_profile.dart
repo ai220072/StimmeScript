@@ -71,8 +71,7 @@ class EditProfilePageState extends State<EditProfilePage> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close dialog
-                  Navigator.pushReplacementNamed(context, '/manage_profile'); // Navigate back
+                  Navigator.of(context).pop();
                 },
                 child: const Text('OK'),
               ),
