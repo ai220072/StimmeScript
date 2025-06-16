@@ -40,7 +40,7 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     if (password.length < 11) {
-      _showDialog("Error", "Password must be at least 11 characters!");
+      _showDialog("Error", "Password must be at least 12 characters!");
       return;
     }
 
