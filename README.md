@@ -1,4 +1,4 @@
-# StimmeScript_v2
+# StimmeScript
 
 An Audio-To-Text Converter Tool.
 
